@@ -60,12 +60,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: useblacksmith/setup-docker-builder@v1
 
-      - name: Generate tags
+      - name: Generate tags and version
         id: meta
         run: |
           ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
           ECR_REPO="${{ secrets[matrix.ecr_repo_secret] }}"
           GHCR_IMAGE="${{ matrix.ghcr_image }}"
+
+          # Determine version from git tag or use commit SHA
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev-${{ github.sha }}")
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
           # ECR tags (always build for ECR)
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
@@ -95,6 +103,8 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            VERSION=${{ steps.meta.outputs.version }}
           provenance: false
           sbom: false
 
@@ -127,10 +137,18 @@ jobs:
       - name: Set up Docker Buildx
         uses: useblacksmith/setup-docker-builder@v1
 
-      - name: Generate ARM64 tags
+      - name: Generate ARM64 tags and version
         id: meta
         run: |
           IMAGE="${{ matrix.image }}"
+
+          # Determine version from git tag or use commit SHA
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev-${{ github.sha }}")
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "tags=${IMAGE}:latest-arm64,${IMAGE}:${{ github.sha }}-arm64" >> $GITHUB_OUTPUT
 
       - name: Build and push ARM64 to GHCR
@@ -141,6 +159,8 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            VERSION=${{ steps.meta.outputs.version }}
           provenance: false
           sbom: false
 

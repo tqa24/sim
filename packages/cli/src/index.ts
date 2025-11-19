@@ -1,12 +1,18 @@
 #!/usr/bin/env node
 
 import { execSync, spawn } from 'child_process'
-import { existsSync, mkdirSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync } from 'fs'
 import { homedir } from 'os'
-import { join } from 'path'
+import { dirname, join } from 'path'
 import { createInterface } from 'readline'
+import { fileURLToPath } from 'url'
 import chalk from 'chalk'
 import { Command } from 'commander'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'))
 
 const NETWORK_NAME = 'simstudio-network'
 const DB_CONTAINER = 'simstudio-db'
@@ -17,7 +23,7 @@ const DEFAULT_PORT = '3000'
 
 const program = new Command()
 
-program.name('simstudio').description('Run Sim using Docker').version('0.1.0')
+program.name('simstudio').description('Run Sim using Docker').version(packageJson.version)
 
 program
   .option('-p, --port <port>', 'Port to run Sim on', DEFAULT_PORT)

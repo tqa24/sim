@@ -262,7 +262,10 @@ export const env = createEnv({
 
     // Client-side Services
     NEXT_PUBLIC_SOCKET_URL:                z.string().url().optional(),            // WebSocket server URL for real-time features
-    
+
+    // Version Information
+    NEXT_PUBLIC_APP_VERSION:               z.string().optional(),                  // Application version (set at build time from Docker ARG or package.json)
+
     // Billing
     NEXT_PUBLIC_BILLING_ENABLED:           z.boolean().optional(),                 // Enable billing enforcement and usage tracking (client-side)
 
@@ -309,6 +312,7 @@ export const env = createEnv({
 
   experimental__runtimeEnv: {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION,
     NEXT_PUBLIC_BILLING_ENABLED: process.env.NEXT_PUBLIC_BILLING_ENABLED,
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
     NEXT_PUBLIC_GOOGLE_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_API_KEY,

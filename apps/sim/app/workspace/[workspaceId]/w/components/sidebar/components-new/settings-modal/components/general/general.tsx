@@ -14,6 +14,8 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useSession } from '@/lib/auth-client'
 import { getEnv, isTruthy } from '@/lib/env'
+import { isHosted } from '@/lib/environment'
+import packageJson from '@/../../package.json'
 import { useGeneralSettings, useUpdateGeneralSetting } from '@/hooks/queries/general-settings'
 
 const TOOLTIPS = {
@@ -342,6 +344,18 @@ export function General() {
               onCheckedChange={handleSuperUserModeToggle}
               disabled={updateSetting.isPending}
             />
+          </div>
+        )}
+
+        {/* Version Display - Only visible for self-hosted instances */}
+        {!isHosted && (
+          <div className='mt-4 border-t pt-4'>
+            <div className='flex items-center justify-between'>
+              <Label className='font-normal text-muted-foreground'>Version</Label>
+              <span className='font-mono text-muted-foreground text-sm'>
+                {getEnv('NEXT_PUBLIC_APP_VERSION') || packageJson.version}
+              </span>
+            </div>
           </div>
         )}
       </div>

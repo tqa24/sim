@@ -26,6 +26,10 @@ RUN bun install --omit dev --ignore-scripts
 FROM base AS builder
 WORKDIR /app
 
+# Accept version as build argument (defaults to package.json version if not provided)
+ARG VERSION
+ENV NEXT_PUBLIC_APP_VERSION=${VERSION}
+
 # Install turbo globally in builder stage
 RUN bun install -g turbo
 
@@ -63,6 +67,10 @@ RUN bun run build
 
 FROM base AS runner
 WORKDIR /app
+
+# Accept version as build argument and set as environment variable
+ARG VERSION
+ENV NEXT_PUBLIC_APP_VERSION=${VERSION}
 
 # Install Python and dependencies for guardrails PII detection
 RUN apk add --no-cache python3 py3-pip bash
